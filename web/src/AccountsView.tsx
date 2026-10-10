@@ -10,6 +10,7 @@ import {
 } from './api';
 import { ACCOUNT_GROUPS } from './BudgetSidebar';
 import { formatMoney } from './format';
+import { navigate } from './router';
 import { starterAccounts } from './starters';
 
 const TYPE_LABELS: Record<AccountType, string> = {
@@ -163,7 +164,16 @@ export function AccountsView({
                 <tbody>
                   {rows.map((account) => (
                     <tr key={account.id}>
-                      <td>{account.name}</td>
+                      <td>
+                        <button
+                          className="btn-link"
+                          onClick={() =>
+                            navigate(`/budgets/${encodeURIComponent(budgetId)}/transactions?account=${encodeURIComponent(account.id)}`)
+                          }
+                        >
+                          {account.name}
+                        </button>
+                      </td>
                       <td className="muted">{TYPE_LABELS[account.type]}</td>
                       <td className="right">
                         <span

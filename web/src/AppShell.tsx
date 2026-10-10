@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Budget, User, api, errorMessage } from './api';
 import { BudgetDetail } from './BudgetDetail';
 import { dateLabel } from './format';
+import { GearIcon, SettingsDialog } from './SettingsDialog';
 import { findBudget, navigate, useRoute } from './router';
 
 export function AppShell({
@@ -14,6 +15,7 @@ export function AppShell({
   const [budgets, setBudgets] = useState<Budget[] | null>(null);
   const [newName, setNewName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
   const route = useRoute();
 
   const refresh = () =>
@@ -43,20 +45,17 @@ export function AppShell({
   const selected = findBudget(route, budgets);
 
   return (
-    <div className="app">
+    <div className={route.name === 'budget' ? 'app no-topbar' : 'app'}>
+      {route.name !== 'budget' && (
       <header className="topbar">
-        <div className="brand">OneBudget</div>
-        <div className="spacer" />
-        <span className="user-chip">
-          {user.name}
-          <span className="user-email">{user.email}</span>
-        </span>
-        <button className="btn btn-ghost btn-sm" onClick={onSignOut}>
-          Sign out
-        </button>
+        <div className="brand">
+          <span className="brand-logo" aria-hidden="true">1</span>
+          OneBudget
+        </div>
       </header>
+      )}
 
-      <div className="content">
+      <div className={route.name === 'budget' && selected ? 'content wide' : 'content'}>
         {error && <div className="error">{error}</div>}
 
         {budgets === null ? (
@@ -66,6 +65,7 @@ export function AppShell({
             <BudgetDetail
               budget={selected}
               onBack={() => navigate('/')}
+              onOpenSettings={() => setShowSettings(true)}
               onChanged={refresh}
               onDeleted={() => {
                 navigate('/');
@@ -141,6 +141,20 @@ export function AppShell({
           </>
         )}
       </div>
+
+      {route.name !== 'budget' && (
+        <button className="settings-dock" onClick={() => setShowSettings(true)}>
+          <GearIcon /> Settings
+        </button>
+      )}
+      {showSettings && (
+        <SettingsDialog
+          user={user}
+          membersPath={route.name === 'budget' && selected ? `/budgets/${encodeURIComponent(selected.id)}/members` : undefined}
+          onSignOut={onSignOut}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
     </div>
   );
 }

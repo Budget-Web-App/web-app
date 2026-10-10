@@ -15,6 +15,15 @@ describe('matchPath', () => {
     });
   });
 
+  it('matches the reports tab', () => {
+    expect(matchPath('/budgets/bud_1/reports')).toEqual({
+      name: 'budget',
+      budgetId: 'bud_1',
+      tab: 'reports',
+      accountId: null,
+    });
+  });
+
   it('treats /budget as an alias of the Budget tab', () => {
     expect(matchPath('/budgets/bud_1/budget')).toEqual({
       name: 'budget',

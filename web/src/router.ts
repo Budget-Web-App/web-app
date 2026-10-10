@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 /** Tab ids match `BudgetDetail`'s component state; the `budget` URL segment maps to `month`. */
-export type TabId = 'month' | 'accounts' | 'transactions' | 'members';
+export type TabId = 'month' | 'accounts' | 'transactions' | 'members' | 'reports';
 
 /**
  * Route table:
@@ -10,7 +10,8 @@ export type TabId = 'month' | 'accounts' | 'transactions' | 'members';
  *   /budgets/:budgetId/budget             alias of the row above
  *   /budgets/:budgetId/accounts           Accounts tab
  *   /budgets/:budgetId/transactions       Transactions tab, optional ?account= filter
- *   /budgets/:budgetId/members            Members tab
+ *   /budgets/:budgetId/members            Members tab (opened from Settings)
+ *   /budgets/:budgetId/reports            Reports tab
  *   anything else                         budget list (replaceState to /)
  */
 export type Route =
@@ -31,6 +32,7 @@ const TAB_BY_SEGMENT: Record<string, TabId> = {
   accounts: 'accounts',
   transactions: 'transactions',
   members: 'members',
+  reports: 'reports',
 };
 
 function decode(segment: string): string | null {

@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { User, api, errorMessage } from './api';
+import { Pricing } from './Pricing';
 
 export function AuthPage({ onAuthed }: { onAuthed: (user: User) => void }) {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -29,9 +30,11 @@ export function AuthPage({ onAuthed }: { onAuthed: (user: User) => void }) {
   return (
     <main className="auth-wrap">
       <div className="auth">
-        <div className="brand-mark">OneBudget</div>
+        <div className="brand-mark">
+          <span className="brand-logo" aria-hidden="true">1</span>
+          OneBudget
+        </div>
         <p className="auth-tagline">Give every dollar a job.</p>
-        <hr className="auth-rule" />
         <div className="auth-tabs" role="tablist">
           <button
             className={mode === 'login' ? 'auth-tab active' : 'auth-tab'}
@@ -97,6 +100,7 @@ export function AuthPage({ onAuthed }: { onAuthed: (user: User) => void }) {
           </button>
         </form>
       </div>
+      <Pricing />
     </main>
   );
 }

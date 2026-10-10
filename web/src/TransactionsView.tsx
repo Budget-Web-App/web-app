@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { CsvImport } from './CsvImport';
 import {
   Account,
   CategoryGroup,
@@ -79,6 +80,7 @@ export function TransactionsView({
   const [bulkCategory, setBulkCategory] = useState('');
   const [bulkBusy, setBulkBusy] = useState(false);
 
+  const payeeRef = useRef<HTMLInputElement>(null);
   const [accountId, setAccountId] = useState('');
   const [mode, setMode] = useState<Mode>('expense');
   const [payee, setPayee] = useState('');
@@ -207,6 +209,32 @@ export function TransactionsView({
     date !== '' &&
     (mode === 'expense' || transferAccountId !== '');
 
+  const lastForPayee = (name: string) =>
+    (transactions ?? []).find(
+      (t) => t.payee.toLowerCase() === name.trim().toLowerCase() && t.transferTransactionId === null,
+    );
+
+  const pickPayee = (name: string) => {
+    setPayee(name);
+    const match = lastForPayee(name);
+    if (match && categoryId === '' && amount === '') {
+      setCategoryId(match.categoryId ?? '');
+      setIsIncome(match.amountMinor > 0);
+    }
+  };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (e.key.toLowerCase() === 'n' && !e.metaKey && !e.ctrlKey && !e.altKey && tag !== 'INPUT' && tag !== 'SELECT' && tag !== 'TEXTAREA') {
+        e.preventDefault();
+        payeeRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
@@ -226,6 +254,7 @@ export function TransactionsView({
       setMemo('');
       setIsIncome(false);
       await loadTransactions();
+      payeeRef.current?.focus();
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -251,17 +280,19 @@ export function TransactionsView({
 
       <div className="month-nav">
         <button
-          className="btn btn-ghost btn-sm"
+          className="btn btn-ghost btn-icon"
           onClick={() => setMonth(shiftMonth(month, -1))}
+          aria-label="Previous month"
         >
-          Earlier
+          ‹
         </button>
         <span className="month-label">{monthLabel(month)}</span>
         <button
-          className="btn btn-ghost btn-sm"
+          className="btn btn-ghost btn-icon"
           onClick={() => setMonth(shiftMonth(month, 1))}
+          aria-label="Next month"
         >
-          Later
+          ›
         </button>
         <select
           className="select"
@@ -459,8 +490,11 @@ export function TransactionsView({
           <input
             className="input payee"
             placeholder="Payee"
+            ref={payeeRef}
+            list="payee-options"
+            autoComplete="off"
             value={payee}
-            onChange={(e) => setPayee(e.target.value)}
+            onChange={(e) => pickPayee(e.target.value)}
             aria-label="Payee"
           />
           <input
@@ -525,7 +559,30 @@ export function TransactionsView({
           <button className="btn btn-primary" disabled={!canSubmit}>
             Add
           </button>
+          <datalist id="payee-options">
+            {Array.from(new Set((transactions ?? []).map((t) => t.payee))).map((name) => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
         </form>
+      )}
+
+      {canEdit && (
+        <p className="muted entry-hint">
+          Keyboard entry: press <kbd>N</kbd> to jump to Payee, <kbd>Tab</kbd> between fields,{' '}
+          <kbd>Enter</kbd> to save. Known payees fill their last category.
+        </p>
+      )}
+
+      {canEdit && accounts.length > 0 && (
+        <CsvImport
+          budgetId={budgetId}
+          currency={currency}
+          accounts={accounts}
+          accountId={accountId || accounts[0].id}
+          existing={transactions ?? []}
+          onDone={() => { loadTransactions(); }}
+        />
       )}
     </section>
   );
