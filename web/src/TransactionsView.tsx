@@ -9,11 +9,12 @@ import {
   api,
   errorMessage,
 } from './api';
-import { currentMonth, formatMoney, monthLabel, shiftMonth } from './format';
+import { currentMonth, formatMoney } from './format';
+import { MonthSwitcher } from './MonthPicker';
 import { categoryOptionGroups, isHiddenOption } from './categories';
 import { navigate, useRoute } from './router';
+import { hasRole } from './roles';
 
-const RANK: Record<Role, number> = { viewer: 1, editor: 2, owner: 3 };
 type Mode = 'expense' | 'transfer';
 
 function today(): string {
@@ -61,7 +62,7 @@ export function TransactionsView({
   currency: string;
   role: Role;
 }) {
-  const canEdit = RANK[role] >= RANK.editor;
+  const canEdit = hasRole(role, 'editor');
 
   const route = useRoute();
   const routeAccountId = route.name === 'budget' ? route.accountId : null;
@@ -279,21 +280,7 @@ export function TransactionsView({
       {error && <div className="error">{error}</div>}
 
       <div className="month-nav">
-        <button
-          className="btn btn-ghost btn-icon"
-          onClick={() => setMonth(shiftMonth(month, -1))}
-          aria-label="Previous month"
-        >
-          ‹
-        </button>
-        <span className="month-label">{monthLabel(month)}</span>
-        <button
-          className="btn btn-ghost btn-icon"
-          onClick={() => setMonth(shiftMonth(month, 1))}
-          aria-label="Next month"
-        >
-          ›
-        </button>
+        <MonthSwitcher month={month} onChange={setMonth} />
         <select
           className="select"
           value={filterAccountId ?? ''}

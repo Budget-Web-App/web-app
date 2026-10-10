@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { User } from './api';
+import { useEffect, useRef, useState } from 'react';
+import { Budget, User, api, errorMessage } from './api';
+import { hasRole } from './roles';
 import { navigate } from './router';
 
 export function GearIcon() {
@@ -13,16 +14,22 @@ export function GearIcon() {
 
 export function SettingsDialog({
   user,
-  membersPath,
+  budget,
   onSignOut,
   onClose,
+  onChanged,
+  onDeleted,
 }: {
   user: User;
-  membersPath?: string;
+  budget?: Budget;
   onSignOut: () => void;
   onClose: () => void;
+  onChanged: () => void;
+  onDeleted: () => void;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const [rename, setRename] = useState(budget?.name ?? '');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -30,6 +37,37 @@ export function SettingsDialog({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
+
+  useEffect(() => setRename(budget?.name ?? ''), [budget?.name]);
+
+  const saveName = async () => {
+    if (!budget || !rename.trim() || rename === budget.name) return;
+    setError(null);
+    try {
+      await api.renameBudget(budget.id, rename.trim());
+      onChanged();
+    } catch (err) {
+      setError(errorMessage(err));
+    }
+  };
+
+  const deleteBudget = async () => {
+    if (!budget) return;
+    if (
+      !window.confirm(
+        `Delete "${budget.name}" and all of its data? This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    setError(null);
+    try {
+      await api.deleteBudget(budget.id);
+      onDeleted();
+    } catch (err) {
+      setError(errorMessage(err));
+    }
+  };
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -45,12 +83,43 @@ export function SettingsDialog({
             </div>
           </div>
         </div>
-        {membersPath && (
+        {budget && (
           <div className="modal-section">
             <div className="sidebar-section-label dark">This budget</div>
-            <button className="btn" onClick={() => { navigate(membersPath); onClose(); }}>
-              Manage members
-            </button>
+            {hasRole(budget.role, 'editor') && (
+              <div className="dialog-row">
+                <input
+                  className="input"
+                  value={rename}
+                  onChange={(e) => setRename(e.target.value)}
+                  aria-label="Budget name"
+                />
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={saveName}
+                  disabled={!rename.trim() || rename === budget.name}
+                >
+                  Save name
+                </button>
+              </div>
+            )}
+            <div className="dialog-row">
+              <button
+                className="btn"
+                onClick={() => {
+                  navigate(`/budgets/${encodeURIComponent(budget.id)}/members`);
+                  onClose();
+                }}
+              >
+                Manage members
+              </button>
+              {hasRole(budget.role, 'owner') && (
+                <button className="btn btn-danger" onClick={deleteBudget}>
+                  Delete budget
+                </button>
+              )}
+            </div>
+            {error && <div className="error">{error}</div>}
           </div>
         )}
         <div className="modal-actions">

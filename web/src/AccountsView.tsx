@@ -11,6 +11,7 @@ import {
 import { ACCOUNT_GROUPS } from './BudgetSidebar';
 import { formatMoney } from './format';
 import { navigate } from './router';
+import { hasRole } from './roles';
 import { starterAccounts } from './starters';
 
 const TYPE_LABELS: Record<AccountType, string> = {
@@ -19,20 +20,16 @@ const TYPE_LABELS: Record<AccountType, string> = {
   credit: 'Credit card',
 };
 
-const RANK: Record<Role, number> = { viewer: 1, editor: 2, owner: 3 };
-
 export function AccountsView({
   budgetId,
   currency,
   role,
-  onChanged,
 }: {
   budgetId: string;
   currency: string;
   role: Role;
-  onChanged?: () => void;
 }) {
-  const canEdit = RANK[role] >= RANK.editor;
+  const canEdit = hasRole(role, 'editor');
 
   const [accounts, setAccounts] = useState<Account[] | null>(null);
   const [providers, setProviders] = useState<SyncProvider[]>([]);
@@ -70,7 +67,6 @@ export function AccountsView({
       await api.createAccount(budgetId, name.trim(), type);
       setName('');
       await load();
-      onChanged?.();
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -85,7 +81,6 @@ export function AccountsView({
         await api.createAccount(budgetId, account.name, account.type);
       }
       await load();
-      onChanged?.();
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -97,7 +92,6 @@ export function AccountsView({
     try {
       await api.closeAccount(budgetId, accountId);
       await load();
-      onChanged?.();
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -108,7 +102,6 @@ export function AccountsView({
       setSyncResult(await api.runSync(budgetId, provider.id));
       setError(null);
       await load();
-      onChanged?.();
     } catch (err) {
       setError(errorMessage(err));
     }

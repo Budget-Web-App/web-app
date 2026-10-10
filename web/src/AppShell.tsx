@@ -66,11 +66,6 @@ export function AppShell({
               budget={selected}
               onBack={() => navigate('/')}
               onOpenSettings={() => setShowSettings(true)}
-              onChanged={refresh}
-              onDeleted={() => {
-                navigate('/');
-                refresh();
-              }}
             />
           ) : (
             <div className="empty">
@@ -125,13 +120,7 @@ export function AppShell({
                     <span className="ledger-meta">
                       Created {dateLabel(budget.createdAt)}
                     </span>
-                    <span
-                      className={
-                        budget.role === 'owner'
-                          ? 'role-badge owner'
-                          : 'role-badge'
-                      }
-                    >
+                    <span className={`role-badge ${budget.role}`}>
                       {budget.role}
                     </span>
                   </button>
@@ -150,7 +139,13 @@ export function AppShell({
       {showSettings && (
         <SettingsDialog
           user={user}
-          membersPath={route.name === 'budget' && selected ? `/budgets/${encodeURIComponent(selected.id)}/members` : undefined}
+          budget={route.name === 'budget' && selected ? selected : undefined}
+          onChanged={refresh}
+          onDeleted={() => {
+            setShowSettings(false);
+            navigate('/');
+            refresh();
+          }}
           onSignOut={onSignOut}
           onClose={() => setShowSettings(false)}
         />

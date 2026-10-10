@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Member, Role, api, errorMessage } from './api';
+import { hasRole } from './roles';
 
-const RANK: Record<Role, number> = { viewer: 1, editor: 2, owner: 3 };
 const ROLE_NAMES: Role[] = ['owner', 'editor', 'viewer'];
 
 export function MembersView({
@@ -15,8 +15,6 @@ export function MembersView({
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<Role>('viewer');
   const [error, setError] = useState<string | null>(null);
-
-  const can = (minimum: Role) => RANK[myRole] >= RANK[minimum];
 
   const load = () =>
     api
@@ -81,7 +79,7 @@ export function MembersView({
               <td>{member.name}</td>
               <td className="muted">{member.email}</td>
               <td>
-                {can('owner') ? (
+                {hasRole(myRole, 'owner') ? (
                   <select
                     className="select"
                     value={member.role}
@@ -95,11 +93,11 @@ export function MembersView({
                     ))}
                   </select>
                 ) : (
-                  <span className="role-badge owner">{member.role}</span>
+                  <span className={`role-badge ${member.role}`}>{member.role}</span>
                 )}
               </td>
               <td className="right">
-                {can('owner') && (
+                {hasRole(myRole, 'owner') && (
                   <button
                     className="btn-link danger"
                     onClick={() => removeMember(member)}
@@ -113,7 +111,7 @@ export function MembersView({
         </tbody>
       </table>
 
-      {can('owner') && (
+      {hasRole(myRole, 'owner') && (
         <>
           <h2 className="section-title">Add a member</h2>
           <form className="create-row" onSubmit={addMember}>

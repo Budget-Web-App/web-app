@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { MonthView as MonthViewType, api, errorMessage } from './api';
-import { currentMonth, formatMoney, shiftMonth } from './format';
-import { MonthPicker } from './MonthPicker';
+import { currentMonth, formatMoney } from './format';
+import { MonthSwitcher } from './MonthPicker';
 
 /** Income, spending and spending by category for one month, from existing month and transaction data. */
 export function ReportsView({ budgetId, currency }: { budgetId: string; currency: string }) {
@@ -37,11 +37,7 @@ export function ReportsView({ budgetId, currency }: { budgetId: string; currency
     <section>
       {error && <div className="error">{error}</div>}
       <div className="month-header">
-        <div className="month-switcher">
-          <button className="btn btn-ghost btn-icon" onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Previous month">‹</button>
-          <MonthPicker month={month} onChange={setMonth} />
-          <button className="btn btn-ghost btn-icon" onClick={() => setMonth(shiftMonth(month, 1))} aria-label="Next month">›</button>
-        </div>
+        <MonthSwitcher month={month} onChange={setMonth} />
       </div>
 
       {view === null ? (

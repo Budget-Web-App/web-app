@@ -1,10 +1,12 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { MonthCategory, MonthView as MonthViewType, Role, api, errorMessage } from './api';
-import { currentMonth, formatMoney, shiftMonth } from './format';
+import { currentMonth, formatMoney } from './format';
 import { starterGroups } from './starters';
-import { MonthPicker } from './MonthPicker';
+import { MonthSwitcher } from './MonthPicker';
 import { GuidedSetup } from './GuidedSetup';
 import { FundEntry, MinimumMonth } from './MinimumMonth';
+import { hasRole } from './roles';
+import { setupComplete } from './setup';
 
 type Change = {
   categoryId: string;
@@ -15,8 +17,6 @@ type Change = {
   at: number;
 };
 
-const RANK: Record<Role, number> = { viewer: 1, editor: 2, owner: 3 };
-
 export function MonthView({
   budgetId,
   currency,
@@ -26,7 +26,10 @@ export function MonthView({
   currency: string;
   role?: Role;
 }) {
-  const canEdit = role !== undefined && RANK[role] >= RANK.editor;
+  const canEdit = role !== undefined && hasRole(role, 'editor');
+  const guideKey = `onebudget:guide-dismissed:${budgetId}`;
+  const guideDismissed = () => localStorage.getItem(guideKey) === '1';
+  const [guideOpen, setGuideOpen] = useState(false);
   const [month, setMonth] = useState(currentMonth());
   const [view, setView] = useState<MonthViewType | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +58,18 @@ export function MonthView({
       })
       .catch((err) => setError(errorMessage(err)));
   }, [budgetId, month]);
+
+  // Auto-open the tutorial once per budget, but only while setup is unfinished.
+  useEffect(() => {
+    if (canEdit && view && !setupComplete(view) && !guideDismissed()) {
+      setGuideOpen(true);
+    }
+  }, [view, budgetId, canEdit]);
+
+  const closeGuide = () => {
+    localStorage.setItem(guideKey, '1');
+    setGuideOpen(false);
+  };
 
   const commitAllocation = async (categoryId: string) => {
     const dollars = Number(drafts[categoryId] ?? 0);
@@ -243,26 +258,13 @@ export function MonthView({
       {error && <div className="error">{error}</div>}
 
       <div className="month-header">
-        <div className="month-switcher">
-          <button
-            className="btn btn-ghost btn-icon"
-            onClick={() => setMonth(shiftMonth(month, -1))}
-            aria-label="Previous month"
-          >
-            ‹
-          </button>
-          <MonthPicker month={month} onChange={setMonth} />
-          <button
-            className="btn btn-ghost btn-icon"
-            onClick={() => setMonth(shiftMonth(month, 1))}
-            aria-label="Next month"
-          >
-            ›
-          </button>
-        </div>
+        <MonthSwitcher month={month} onChange={setMonth} />
 
         {canEdit && (
           <div className="history-bar">
+            <button className="btn btn-ghost btn-sm" onClick={() => setGuideOpen(true)}>
+              Setup guide
+            </button>
             <button className="btn btn-ghost btn-sm" onClick={undo} disabled={monthHistory.length === 0} title="Undo last change (Ctrl or Cmd + Z)">
               ↶ Undo
             </button>
@@ -311,16 +313,19 @@ export function MonthView({
         <p className="muted">Loading…</p>
       ) : (
         <>
-          <GuidedSetup
-            budgetId={budgetId}
-            month={month}
-            currency={currency}
-            view={view}
-            canEdit={canEdit}
-            busy={busy}
-            onStarter={addStarterCategories}
-            onChanged={() => reload().catch((err) => setError(errorMessage(err)))}
-          />
+          {canEdit && (
+            <GuidedSetup
+              budgetId={budgetId}
+              month={month}
+              currency={currency}
+              view={view}
+              busy={busy}
+              open={guideOpen}
+              onStarter={addStarterCategories}
+              onChanged={() => reload().catch((err) => setError(errorMessage(err)))}
+              onClose={closeGuide}
+            />
+          )}
           {canEdit && view.groups.length > 0 && (
             <MinimumMonth budgetId={budgetId} month={month} currency={currency} view={view} onFund={fund} />
           )}

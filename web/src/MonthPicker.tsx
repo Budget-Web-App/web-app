@@ -1,7 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
-import { currentMonth, monthLabel } from './format';
+import { currentMonth, monthLabel, shiftMonth } from './format';
 
 const NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** Previous/next arrows around the month picker, shared by the views that navigate months. */
+export function MonthSwitcher({ month, onChange }: { month: string; onChange: (month: string) => void }) {
+  return (
+    <div className="month-switcher">
+      <button
+        className="btn btn-ghost btn-icon"
+        onClick={() => onChange(shiftMonth(month, -1))}
+        aria-label="Previous month"
+      >
+        ‹
+      </button>
+      <MonthPicker month={month} onChange={onChange} />
+      <button
+        className="btn btn-ghost btn-icon"
+        onClick={() => onChange(shiftMonth(month, 1))}
+        aria-label="Next month"
+      >
+        ›
+      </button>
+    </div>
+  );
+}
 
 /** Month and year title that opens a year-and-month calendar grid, like YNAB's. */
 export function MonthPicker({ month, onChange }: { month: string; onChange: (month: string) => void }) {
