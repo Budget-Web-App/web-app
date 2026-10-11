@@ -28,8 +28,13 @@ repo with two npm workspaces.
   `src/app.ts`. Routes live in `src/routes/`, session and role guards in
   `src/middleware/auth.ts`, all state in `src/store.ts` (in-memory maps), and
   bank sync adapters in `src/sync/`.
-- `web/` — React SPA built with Vite. Entry is `src/main.tsx` to `App.tsx` to
-  `AppShell.tsx`. Routing is the hand-rolled `src/router.ts`.
+- `web/` — React SPA built with Vite, organized by feature under `src/`:
+  `app/` (entry `main.tsx` to `App.tsx` to `AppShell.tsx`, plus the hand-rolled
+  `router.ts`), `features/<name>/` (screens and their pure helpers: `auth`,
+  `budgets`, `month`, `categories`, `accounts`, `transactions`, `members`,
+  `reports`), `lib/` (API client, money formatting, roles), and `styles/`.
+  Tests sit beside the code as `*.test.ts`. A feature may import from `lib/`
+  and from other features; `lib/` imports from neither.
 - `docs/` — the source of truth: `api-contract.md`, `requirements.md`,
   `development.md`, and `docs/adrs/`.
 
@@ -57,7 +62,7 @@ repo with two npm workspaces.
 
 - `npm test` runs both suites with Vitest. The server suite drives `createApp()`
   through supertest. The web suite covers pure logic only (router, categories,
-  starters).
+  starters, money parsing), colocated with the source.
 - Web tests run in the Node environment. There is no DOM test harness, so do not
   write component tests without adding `jsdom` and a testing library, which needs
   a decision record.

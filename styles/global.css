@@ -1,0 +1,15 @@
+/*
+ * OneBudget styles. Cascade order is declared once, here, so no rule needs
+ * !important or specificity tricks to win: later layers beat earlier ones.
+ *   tokens     design tokens (custom properties, light and dark)
+ *   base       reset, element defaults, accessibility helpers
+ *   components buttons, fields, tables, layout, feature styles
+ *   utilities  single-purpose helpers that must win over components
+ */
+@layer tokens, base, components, utilities;
+
+@import './tokens.css';
+@import './base.css';
+@import './components.css';
+@import './accounts.css';
+@import './utilities.css';

@@ -2,6 +2,9 @@
   "name": "onebudget",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "description": "Zero-based budgeting web app: Express API plus React SPA.",
   "workspaces": [
     "server",

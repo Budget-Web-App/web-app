@@ -17,7 +17,7 @@ MUST: Encode ids with `encodeURIComponent` when writing a URL and decode with `d
 MUST: Parse a single optional `account` query parameter on the budget routes and expose it as `accountId` on the match. Its value is an account id.
 MUST: Treat the `account` query parameter as the transaction-list filter. An absent, empty, or unknown account id means "all accounts".
 MUST: Keep the SPA catch-all in `server/src/app.ts` (`app.get('*')` sending `index.html`) after the `/api` routes, so a deep-link refresh returns the app shell.
-MUST NOT: Add a third-party routing dependency. The router is the hand-rolled module `web/src/router.ts`, exposing `useRoute()` and `navigate()`.
+MUST NOT: Add a third-party routing dependency. The router is the hand-rolled module `web/src/app/router.ts`, exposing `useRoute()` and `navigate()`.
 SHOULD: Keep the router in one module. Revisit this record if it needs nested layouts, more query parameters than the one above, route-level data loading, or grows past about 150 lines.
 
 ## Why
@@ -62,7 +62,7 @@ python3 - <<'EOF'
 import glob, json, re
 fail = []
 
-router = 'web/src/router.ts'
+router = 'web/src/app/router.ts'
 try:
     src = open(router).read()
 except FileNotFoundError:

@@ -1,0 +1,129 @@
+@layer tokens {
+  :root {
+    color-scheme: light dark;
+
+    /* Chrome (always dark navy) */
+    --chrome: #1f2d3d;
+    --chrome-hover: rgb(255 255 255 / 0.07);
+    --chrome-active: rgb(255 255 255 / 0.13);
+    --chrome-ink: #d5dde8;
+    --chrome-muted: #9aa8ba;
+    --chrome-line: rgb(255 255 255 / 0.1);
+
+    /* Canvas */
+    --ink: #1b2632;
+    --ink-soft: #4f5d6d;
+    --muted: #5f6c7b;
+    --canvas: #f4f6f9;
+    --paper: #ffffff;
+    --line: #e4e9ef;
+    --line-strong: #cbd4de;
+    --hover-tint: #f6f8fb;
+    --group-header: #edf1f6;
+    --scrim: rgb(20 30 45 / 0.45);
+
+    /* Accent: fill for actions, text for links, wash for selected rows */
+    --accent: #2f6fd6;
+    --accent-strong: #2459b0;
+    --accent-text: #2459b0;
+    --accent-soft: #e7effc;
+    --accent-wash: #f3f7fe;
+    --accent-line: #c7daf8;
+    --on-accent: #ffffff;
+
+    /* Money states. `-solid` is a filled pill with light text. */
+    --good: #1d6b36;
+    --good-bg: #d6f0d9;
+    --zero: #566274;
+    --zero-bg: #e8ecf1;
+    --danger: #b3302a;
+    --danger-solid: #c0352e;
+    --danger-soft: #fdf0ef;
+    --danger-line: #f0c9c6;
+
+    /* Scale */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+
+    --text-xs: 0.75rem;
+    --text-sm: 0.8125rem;
+    --text-base: 0.875rem;
+    --text-md: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.5rem;
+    --text-2xl: 1.75rem;
+
+    --radius: 6px;
+    --radius-lg: 10px;
+    --radius-xl: 14px;
+    --control-h: 2.25rem;
+    --control-h-sm: 1.875rem;
+    --tap-min: 2.75rem;
+    --topbar-h: 3.25rem;
+    --gutter: 2rem;
+
+    --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+    --shadow-sm: 0 1px 2px rgb(20 35 55 / 0.12);
+    --shadow-pop: 0 10px 28px rgb(20 35 55 / 0.18);
+    --shadow-card: 0 1px 2px rgb(20 35 55 / 0.06), 0 8px 28px rgb(20 35 55 / 0.08);
+    --shadow-modal: 0 20px 50px rgb(20 30 45 / 0.3);
+
+    --z-sticky: 5;
+    --z-topbar: 20;
+    --z-pop: 30;
+    --z-modal: 50;
+    --z-modal-top: 60;
+
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --dur-fast: 100ms;
+    --dur: 150ms;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --chrome: #121a24;
+      --ink: #e6ebf1;
+      --ink-soft: #b4bfcc;
+      --muted: #94a1b0;
+      --canvas: #0e141c;
+      --paper: #17202b;
+      --line: #263241;
+      --line-strong: #3a4859;
+      --hover-tint: #1c2733;
+      --group-header: #1f2b38;
+      --scrim: rgb(0 0 0 / 0.6);
+
+      --accent: #3d7be0;
+      --accent-strong: #5b92ee;
+      --accent-text: #8db4f5;
+      --accent-soft: #1d2f4b;
+      --accent-wash: #182638;
+      --accent-line: #2c4a78;
+
+      --good: #7fd897;
+      --good-bg: #1b3a26;
+      --zero: #b4bfcc;
+      --zero-bg: #263241;
+      --danger: #ff8d85;
+      --danger-solid: #cf4038;
+      --danger-soft: #3a1f21;
+      --danger-line: #6b2f2f;
+
+      --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
+      --shadow-pop: 0 10px 28px rgb(0 0 0 / 0.5);
+      --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 28px rgb(0 0 0 / 0.35);
+      --shadow-modal: 0 20px 50px rgb(0 0 0 / 0.6);
+    }
+  }
+
+  @media (max-width: 900px) {
+    :root { --gutter: 1rem; }
+  }
+}

@@ -1,0 +1,6 @@
+@layer utilities {
+  .muted { color: var(--muted); }
+  .small { font-size: var(--text-sm); }
+  .right { text-align: right; }
+  .num { font-variant-numeric: tabular-nums; }
+}
