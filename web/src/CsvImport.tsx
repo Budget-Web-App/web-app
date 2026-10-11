@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Account, Transaction, api, errorMessage } from './api';
+import { Account, Transaction, api } from './api';
 import { formatMoney } from './format';
 
 export interface ParsedRow {
@@ -125,9 +125,8 @@ export function CsvImport({
           ...(r.memo ? { memo: r.memo } : {}),
         });
         ok++;
-      } catch (err) {
+      } catch {
         failed++;
-        void errorMessage(err);
       }
     }
     setBusy(false);

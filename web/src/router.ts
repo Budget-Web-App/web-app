@@ -60,12 +60,9 @@ export function matchPath(url: string): Match {
   if (parts[0] === '' && parts[1] === 'budgets' && parts[2]) {
     const budgetId = decode(parts[2]);
     if (budgetId) {
-      const tab =
-        parts.length === 3
-          ? 'month'
-          : parts.length === 4
-            ? TAB_BY_SEGMENT[parts[3]]
-            : undefined;
+      let tab: TabId | undefined;
+      if (parts.length === 3) tab = 'month';
+      else if (parts.length === 4) tab = TAB_BY_SEGMENT[parts[3]];
       if (tab) {
         // An absent or empty `account` means "all accounts".
         const accountId = new URLSearchParams(search).get('account') || null;

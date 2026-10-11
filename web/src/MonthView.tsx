@@ -42,6 +42,9 @@ export function MonthView({
   const [covering, setCovering] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
+  const allCategories = view?.groups.flatMap((g) => g.categories) ?? [];
+  const draft = (minor: number) => (minor / 100).toFixed(2);
+
   useEffect(() => {
     api
       .getMonth(budgetId, month)
@@ -51,7 +54,7 @@ export function MonthView({
         const values: Record<string, string> = {};
         for (const group of next.groups) {
           for (const category of group.categories) {
-            values[category.id] = (category.allocatedMinor / 100).toFixed(2);
+            values[category.id] = draft(category.allocatedMinor);
           }
         }
         setDrafts(values);
@@ -75,7 +78,7 @@ export function MonthView({
     const dollars = Number(drafts[categoryId] ?? 0);
     if (!Number.isFinite(dollars) || dollars < 0) return;
     const nextMinor = Math.round(dollars * 100);
-    const cat = view?.groups.flatMap((g) => g.categories).find((c) => c.id === categoryId);
+    const cat = allCategories.find((c) => c.id === categoryId);
     if (cat && cat.allocatedMinor === nextMinor) {
       setDrafts((current) => ({ ...current, [categoryId]: dollars.toFixed(2) }));
       return;
@@ -95,7 +98,7 @@ export function MonthView({
   };
 
   const cover = async (target: MonthCategory, sourceId: string) => {
-    const src = view?.groups.flatMap((g) => g.categories).find((c) => c.id === sourceId);
+    const src = allCategories.find((c) => c.id === sourceId);
     if (!src) return;
     const amt = Math.min(-target.availableMinor, src.availableMinor, src.allocatedMinor);
     if (amt <= 0) return;
@@ -108,8 +111,8 @@ export function MonthView({
       );
       setDrafts((d) => ({
         ...d,
-        [src.id]: ((src.allocatedMinor - amt) / 100).toFixed(2),
-        [target.id]: ((target.allocatedMinor + amt) / 100).toFixed(2),
+        [src.id]: draft(src.allocatedMinor - amt),
+        [target.id]: draft(target.allocatedMinor + amt),
       }));
       const at = Date.now();
       setHistory((h) => [
@@ -142,7 +145,7 @@ export function MonthView({
       );
       setDrafts((d) => {
         const next = { ...d };
-        entries.forEach((e) => (next[e.category.id] = (e.nextMinor / 100).toFixed(2)));
+        entries.forEach((e) => (next[e.category.id] = draft(e.nextMinor)));
         return next;
       });
       const at = Date.now();
@@ -175,7 +178,7 @@ export function MonthView({
           { categoryId: last.categoryId, allocatedMinor: last.fromMinor },
         ]),
       );
-      setDrafts((d) => ({ ...d, [last.categoryId]: (last.fromMinor / 100).toFixed(2) }));
+      setDrafts((d) => ({ ...d, [last.categoryId]: draft(last.fromMinor) }));
       setHistory((h) => h.filter((x) => x !== last));
       setError(null);
     } catch (err) {
@@ -435,8 +438,7 @@ export function MonthView({
                             {covering === category.id && (
                               <div className="cover-pop" role="menu">
                                 <span className="muted">Move money from:</span>
-                                {view.groups
-                                  .flatMap((g) => g.categories)
+                                {allCategories
                                   .filter((c) => c.id !== category.id && c.availableMinor > 0 && c.allocatedMinor > 0)
                                   .map((c) => (
                                     <button key={c.id} role="menuitem" className="cover-option" onClick={() => cover(category, c.id)}>

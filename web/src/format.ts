@@ -1,8 +1,17 @@
+const formatters = new Map<string, Intl.NumberFormat>();
+
+/** Cache each currency's formatter: money renders in every table row, and building one is costly. */
+function formatter(currency: string): Intl.NumberFormat {
+  let found = formatters.get(currency);
+  if (!found) {
+    found = new Intl.NumberFormat('en-US', { style: 'currency', currency });
+    formatters.set(currency, found);
+  }
+  return found;
+}
+
 export function formatMoney(minor: number, currency = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(minor / 100);
+  return formatter(currency).format(minor / 100);
 }
 
 export function dateLabel(iso: string): string {

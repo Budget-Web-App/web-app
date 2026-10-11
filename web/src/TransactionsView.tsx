@@ -242,7 +242,7 @@ export function TransactionsView({
     const input: TransactionInput = {
       accountId,
       payee: payee.trim(),
-      amountMinor: mode === 'transfer' ? -cents : isIncome ? cents : -cents,
+      amountMinor: mode === 'expense' && isIncome ? cents : -cents,
       date,
     };
     if (memo.trim()) input.memo = memo.trim();
@@ -568,7 +568,7 @@ export function TransactionsView({
           accounts={accounts}
           accountId={accountId || accounts[0].id}
           existing={transactions ?? []}
-          onDone={() => { loadTransactions(); }}
+          onDone={loadTransactions}
         />
       )}
     </section>
